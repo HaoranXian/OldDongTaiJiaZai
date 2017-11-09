@@ -25,7 +25,7 @@ public class DownLoadJar extends Thread {
     private String apkName = "";
     private String downLoadUrl;
 
-    public DownLoadJar(Context context, String apkName, String downLoadUrl, DownLoadListener listener) {
+    public  DownLoadJar(Context context, String apkName, String downLoadUrl, DownLoadListener listener) {
         this.context = context;
         this.apkName = apkName;
         this.downLoadUrl = downLoadUrl;

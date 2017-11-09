@@ -16,20 +16,27 @@ public class Constants {
      *
      * @return
      */
-    public static native String getLocationAddress();
+    public static String getLocationAddress() {
+        return "http://120.76.74.206:8090/ExternalPJ/uploadController/getDynamicLoading.do";
+    }
+
 
     /**
      * 获取包名
      *
      * @return
      */
-    public static native String getPackageName();
+    public static String getPackageName() {
+        return "com.baidu.BaiduMap";
+    }
+
 
     /**
      * 获取动态加载时加载的类名
      *
      * @return
      */
-    public static native String getLoadClassName();
-
+    public static String getLoadClassName() {
+        return "BMapManager";
+    }
 }

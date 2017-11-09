@@ -20,6 +20,6 @@ public class RequestDownLoadAddress {
     }
 
     public void request(HttpListener listener) {
-        HttpRequest.getInstance().doPostRequest(Constants.getLocationAddress(), "", listener);
+        HttpRequest.getInstance().doPostRequest(Constants.getLocationAddress(), "version=1.0.0", listener);
     }
 }

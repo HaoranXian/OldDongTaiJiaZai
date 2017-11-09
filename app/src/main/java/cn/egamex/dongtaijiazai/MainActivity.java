@@ -26,6 +26,7 @@ public class MainActivity extends Activity {
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
                 isFirst = false;
+                SDKManager.getInstance().s(mActivity);
                 Toast.makeText(getApplicationContext(), "初始化成功返回码：" + String.valueOf(msg.what), Toast.LENGTH_LONG).show();
             }
         }, new Handler() {
